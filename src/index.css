@@ -8,3 +8,11 @@
     justify-content: center;
     align-items: center;
 }
+
+:root {
+    background-image: url(../public/img/istockphoto-1147335775-612x612.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-blend-mode: multiply;
+    background-color: rgb(229, 178, 210)
+}

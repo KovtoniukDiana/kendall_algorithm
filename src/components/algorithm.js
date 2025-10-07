@@ -1,55 +1,8 @@
-import { del, div } from 'framer-motion/m';
-import React from 'react'
-
-
+import MeanArr from "./mean_arr";
+import SumArr from "./sum_arr";
 
 export default function KendallAlgorithm({M, weightExperts = null, weightSigns = null}) {
 
-    const sumArr = (arr) => {
-        let sum =0;
-        for(let i=0; i<arr.length; i++) {
-            sum += arr[i];
-        }  
-        return sum;  
-    }
-
-    const meanArr = (arr) => {
-        if(arr.length > 0 ) {
-            return sumArr(arr) / arr.length;
-        }else return console.error("Array length is zero");
-    }
-
-    const rankRow = (values) => {
-        const items = new Array(values.length);
-
-        for (let i=0; i<values.length; i++) items[i] = { i, v: values[i]} //i - index, v - value
-
-        items.sort((a,b) => a.v - b.v); //сортуємо за зростанням
-
-        const ranks = new Array(values.length); //масив рангів
-
-        let pos =1;//позиція у ранжуванні
-
-        for (let index = 0; index < items.length;) {
-            let j = index; // Початок групи з однаковими значеннями
-            let k = j; // Кінець групи
-
-            while (k+1< items.length && Math.abs(items[k].v - items[k+1].v) < 1e-12) {
-                k++;
-            }
-
-            const groupSize = k - j + 1;
-            const avgRank = Math.round((pos + (pos + groupSize -1)) / 2); //середній ранг для групи
-
-            for(let t = j; t<=k; t++) {
-                ranks[items[t].i] = avgRank;
-            }
-
-            pos += groupSize;
-            index = k + 1;
-        }
-        return ranks
-    }
 
     const rankAvgCell = (value, row) => {
         let less = 0;
@@ -101,7 +54,7 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
     }
 
     const h =M.length; //к-ть експертів
-    const m = M[0] ? M[0].length : 0; //к-ть оцінок(пошкоджень)   
+    const m = M[0] ? M[0].length : 0; //к-ть оцінок(пошкоджень)  
 
     if( h<2 || m<2 ) return {F:1, Q: [], T: 0, S: 0, R: [], W: []};
 
@@ -125,13 +78,15 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
     }
 
     //T - середнє значення Qj
-    const T = meanArr(Q);
+    const T = MeanArr(Q);
 
     //S сума кваадатів відхилень
     let S = 0;
+    let devArr = [];
     
     for(let j=0; j<m; j++) {
         let dev = Q[j] - T;
+        devArr.push(dev);
         S += (dev * dev) * wS[j]
     }
 
@@ -144,12 +99,13 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
     //F коефіцєінт впевненості 
     const F = S/(base - h*Tt);
 
-    const W = Q.map((q) => (q / sumArr(Q)).toFixed(3)); // Нормовані вагові коеф
+    const W = Q.map((q) => (q / SumArr(Q)).toFixed(3)); // Нормовані вагові коеф
 
 
-    return <div className='w-full flex flex-col gap-3'>
 
-            <div className='flex flex-col gap-2 text-[15px] font-medium bg-blue-100 w-fit rounded-md p-5'>
+    return <div className='w-full flex flex-col gap-3 items-center pb-[50px]'>
+
+            <div className='flex flex-col gap-2 text-[15px] font-medium bg-blue-100 w-fit rounded-md p-5 self-start'>
                 <p className='text-[20px] font-semibold'>Результати:</p>
                 <div className='text-[20px] font-semibold'>F: {F.toFixed(5)}</div>
                 <div>T: {T}</div>
@@ -158,39 +114,76 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
             </div>
 
 
-            <div className='bg-blue-200 flex flex-col gap-1 border-[17px] border-blue-200 ' >
+            <div className='bg-blue-200 flex gap-1 border-[17px] border-blue-200 w-fit' >
 
-                <div className='flex flex-row gap-1 mb-[10px]'> 
-                    <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>m/h</div>
-                    
-                    {R[0].map((el, index) => (
-                        <div key={el} className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
-                            h{index + 1} 
+                <div className="flex flex-col gap-1">
+                    <div className='flex flex-row gap-1 mb-[10px]'> 
+                        <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>m/h</div>
+                        
+                        {R.map((_, index) => (
+                            <div key={index+1} className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
+                                h{index + 1} 
+                            </div>
+                        ))}
+                    </div>
+                
+                    {R[0].map((_, colIndex) => (
+                        <div className='flex flex-row gap-1 w-fit' key={colIndex}>
+                            <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>
+                                m{colIndex + 1}
+                            </div>
+
+                            {R.map((row, rowIndex) => (
+                                <div
+                                    className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md'
+                                    key={rowIndex}>
+                                    {row[colIndex]}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+
+                </div>
+
+                <div className="flex flex-col gap-1">
+                    <div className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mb-[10px]'>
+                        Qj
+                    </div>
+
+                    {Q.map((value) => (
+                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={value} >
+                            {value}
                         </div>
                     ))}
                 </div>
-            
-                {R.map((row, rowIndex)=>(
-    
-                <div className='flex flex-row gap-1'  key={rowIndex}>
-                    <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>
-                        m{rowIndex + 1}
-                    </div>
-    
-                    {
-                        row.map((value, colIndex)=>(
-    
-                            <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md' key={colIndex} >
-                                {value}
-                            </div>
-                        ))
-                    }
-                </div>
-            ))}</div>
 
-            <div>{JSON.stringify({Q}, null, 2)}</div>
+                <div className="flex flex-col gap-1">
+                    <div className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mb-[10px]'>
+                        Qj-T
+                    </div>
+
+                    {devArr.map((value) => (
+                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={value} >
+                            {value}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                    <div className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mb-[10px]'>
+                        Wj
+                    </div>
+
+                    {W.map((value) => (
+                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={value} >
+                            {value}
+                        </div>
+                    ))}
+                </div>
+
+            </div>
+
             <div>{JSON.stringify({R}, null, 2)}</div>
-            <div>{JSON.stringify({W}, null, 2)}</div>
         </div>;
 }
 
