@@ -113,7 +113,6 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
                 <div>Tt: {Tt}</div>
             </div>
 
-
             <div className='bg-blue-200 flex gap-1 border-[17px] border-blue-200 w-fit' >
 
                 <div className="flex flex-col gap-1">
@@ -121,14 +120,14 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
                         <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>m/h</div>
                         
                         {R.map((_, index) => (
-                            <div key={index+1} className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
+                            <div key={`R-${index+1}`} className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
                                 h{index + 1} 
                             </div>
                         ))}
                     </div>
                 
                     {R[0].map((_, colIndex) => (
-                        <div className='flex flex-row gap-1 w-fit' key={colIndex}>
+                        <div className='flex flex-row gap-1 w-fit' key={`Rzero-${colIndex}`}>
                             <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>
                                 m{colIndex + 1}
                             </div>
@@ -136,7 +135,7 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
                             {R.map((row, rowIndex) => (
                                 <div
                                     className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md'
-                                    key={rowIndex}>
+                                    key={`R-${rowIndex}`}>
                                     {row[colIndex]}
                                 </div>
                             ))}
@@ -150,8 +149,8 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
                         Qj
                     </div>
 
-                    {Q.map((value) => (
-                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={value} >
+                    {Q.map((value, i) => (
+                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={`Q-${i}`} >
                             {value}
                         </div>
                     ))}
@@ -162,8 +161,8 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
                         Qj-T
                     </div>
 
-                    {devArr.map((value) => (
-                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={value} >
+                    {devArr.map((value, i) => (
+                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={`devArr-${i}`} >
                             {value}
                         </div>
                     ))}
@@ -174,16 +173,14 @@ export default function KendallAlgorithm({M, weightExperts = null, weightSigns =
                         Wj
                     </div>
 
-                    {W.map((value) => (
-                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={value} >
+                    {W.map((value, i) => (
+                        <div className='flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-200 rounded-md h-[33px]' key={`w-${i}`} >
                             {value}
                         </div>
                     ))}
                 </div>
 
             </div>
-
-            <div>{JSON.stringify({R}, null, 2)}</div>
         </div>;
 }
 

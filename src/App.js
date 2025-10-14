@@ -14,7 +14,7 @@ export default function App() {
         [0.33 ,0.4, 0.05, 0.21]
     ]);
     const [isChecked, setIsChecked] = useState([]);
-
+    
     const activeMatrix = useMemo(
         () => matrix.filter((_, i) => !isChecked.includes(i)),
         [matrix, isChecked]
@@ -102,7 +102,7 @@ export default function App() {
                         <div className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400 mr-[10px]'>h/m</div>
                         
                         {matrix[0].map((el, index) => (
-                            <div key={el} className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
+                            <div key={`header-${index}`} className=' text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
                                 m{index + 1} 
                             </div>
                         ))}
@@ -158,9 +158,9 @@ export default function App() {
                 <div className='w-fit flex gap-1 flex-col ml-1'>
                     <div className='mb-[10px] text-center p-1 w-20 bg-pink-300 rounded-md border border-pink-400'>deltaAVG</div>
 
-                    {deltaAvg.map((davg) => (
+                    {deltaAvg.map((davg, i) => (
                         <div className='h-[33px] flex items-center justify-center w-20 border border-pink-400 text-center bg-pink-300 rounded-md'
-                            key={davg}>
+                            key={`deltaavg-${i}`}>
                                 {davg}
                         </div>
                     ))}
@@ -169,9 +169,9 @@ export default function App() {
                 <div className='w-fit flex gap-1 flex-col ml-1'>
                     <div className='mb-[10px] text-center p-1 w-9 bg-pink-300 rounded-md border border-pink-400'>№</div>
 
-                    {components.map((comp) => (
+                    {components.map((comp, i) => (
                         <div className='h-[33px] flex items-center justify-center w-9 border border-pink-400 text-center bg-pink-300 rounded-md'
-                            key={comp}>
+                            key={`comp-${i}`}>
                                 {comp}
                         </div>
                     ))}
@@ -180,12 +180,7 @@ export default function App() {
             
             <div className='flex'>
                 <div onClick={addExpert} className='w-[30px] h-[30px] flex justify-center align-middle rounded-full bg-indigo-400 mt-[10px] '>+</div>
-                {matrix.map(el => (
-                    <input key={el} type='checkbox' />
-                ))}
             </div>
-
-            
             </div>
 
         <p className='self-start font-extralight'>Кожен рядок - один експерт, кожен стовбчик - одне пошкодження</p>
