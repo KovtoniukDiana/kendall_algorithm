@@ -2,6 +2,7 @@ import React, {useState, useMemo} from 'react'
 import "./index.css";
 import KendallAlgorithm from './components/algorithm';
 import MeanArr from './components/mean_arr';
+import ExpertsList from './components/experts_list';
 
 
 export default function App() {
@@ -186,6 +187,7 @@ export default function App() {
         <p className='self-start font-extralight'>Кожен рядок - один експерт, кожен стовбчик - одне пошкодження</p>
 
         <KendallAlgorithm M={activeMatrix} />
+        <ExpertsList />
 
     </div>
   )
