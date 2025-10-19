@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Expert" ADD COLUMN     "competence" DOUBLE PRECISION NOT NULL DEFAULT 0.0;
