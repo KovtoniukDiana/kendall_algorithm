@@ -17,7 +17,13 @@ datasource db {
 model Expert {
   id          Int      @id @default(autoincrement())
   name        String
-  experience  Int
+  experience  Float
   position    String
   competence  Float    @default(0.5)
 }
+
+model Damage {
+  id          Int      @id @default(autoincrement())
+  value       Float    @default(0.0)
+}
+

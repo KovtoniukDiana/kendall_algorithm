@@ -1,22 +1,19 @@
 
 import React ,{useState, useEffect} from 'react'
 
-export default function ExpertsList() {
+export default function ExpertsList({experts, fetchExperts}) {
 
-  const [experts, setExperts] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:4000/experts')
-      .then(res => res.json())
-      .then(data => setExperts(data))
-  })
 
   const handleDelete = async (id) => {
 
     try {
-      const res = await fetch(`http://localhost:4000/experts/${id}`, {
+      const response = await fetch(`http://localhost:4000/experts/${id}`, {
         method: 'DELETE'
       })
+
+      if (response.ok) {
+        fetchExperts?.();
+      }
       
     } catch (error) {
       console.error('Помилка при видаленні експерта');

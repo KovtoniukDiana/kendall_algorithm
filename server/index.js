@@ -48,8 +48,8 @@ app.post('/experts', async (req, res) => {
         res.status(201).json(newExpert);
         
     } catch (error) {
-        console.error('Error creating expert');
-        res.status(500).json('Не вдалося створити експерта');
+        console.error('Error creating expert:', error);
+        res.status(500).json({ error: error.message });
     }
 })
 

@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-export default function AddExpert() {
+export default function AddExpert({fetchExperts}) {
 
     const [name, setName] = useState('');
     const [experience, setExperience] = useState('');
@@ -30,6 +30,11 @@ export default function AddExpert() {
                     competence: parseFloat(competence)
                 })
             })
+
+            if (response.ok) {
+                fetchExperts?.();
+            }
+
             return response.json();
 
         } catch (error) {

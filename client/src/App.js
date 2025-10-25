@@ -1,20 +1,67 @@
-import React, {useState, useMemo} from 'react'
+import React, {useState,useEffect, useMemo} from 'react'
 import "./index.css";
 import KendallAlgorithm from './components/algorithm';
 import MeanArr from './components/mean_arr';
+import UpdateCompetence from './components/update_competence';
 import ExpertsList from './components/experts_list';
 import AddExpert from './components/add_expert';
 
 
 export default function App() {
 
-    const [matrix, setMatrix] = useState([
-        [0.41, 0.31, 0.1, 0.16],
-        [0.67, 0.33, 0.05, 0.17],
-        [0.15, 0.21, 0.13, 0.21],
-        [0.44, 0.23, 0.13, 0.66],
-        [0.33 ,0.4, 0.05, 0.21]
-    ]);
+    const [experts, setExperts] = useState([]);
+    
+    const fetchExperts = async () => {
+       await fetch('http://localhost:4000/experts')
+        .then(res => res.json())
+        .then(data => setExperts(data))
+    }
+    useEffect(() => {
+        fetchExperts();
+    }, [])
+
+
+    const [matrix, setMatrix] = useState(() => {
+        const saved = localStorage.getItem('matrix');
+        return saved ? JSON.parse(saved) : [[0, 0, 0, 0], [0, 0, 0, 0]];
+    });
+
+    const [damage, setDamage] = useState(() => {
+        const saved = localStorage.getItem('damage');
+        return saved ? JSON.parse(saved) : 4;
+    });
+    
+    
+    useEffect(() => {
+        if (experts.length === 0) return;
+
+        const cols = damage;
+        const rows = experts.length;
+
+        setMatrix(prev => {
+    
+        if (prev.length === 0) {
+            return Array.from({ length: rows }, () => new Array(cols).fill(0));
+        }
+
+        const newMatrix = Array.from({ length: rows }, (_, i) => {
+            if (prev[i]) {
+            return [...prev[i], ...Array(cols - prev[i].length).fill(0)].slice(0, cols);
+            } else {
+            return new Array(cols).fill(0);
+            }
+        });
+        return newMatrix;
+        });
+  }, [experts]);
+
+
+    useEffect(() => {
+        localStorage.setItem('matrix', JSON.stringify(matrix));
+        localStorage.setItem('damage', JSON.stringify(damage));
+    }, [matrix]);
+
+    
     const [isChecked, setIsChecked] = useState([]);
     
     const activeMatrix = useMemo(
@@ -43,14 +90,12 @@ export default function App() {
         });
     };
 
-    const addExpert = () => {
-        setMatrix(prev =>  [...prev, new Array(prev[0].length).fill(0)] )
-    }
-
     const addDamage = () => {
         setMatrix(prev => 
             prev.map(row => [...row, 0])
         )
+
+        setDamage(prev => prev + 1);
     }
 
     const colAvg = (M) => {
@@ -77,14 +122,30 @@ export default function App() {
             const column = delta.map(row => row[colIndex]);
             return MeanArr(column);
     })};
-    let deltaAvg = deltasAvg(delta)
+    let deltaAvg = deltasAvg(delta);
 
-    const competFind = (delta) => {
-        const sorted =  [...new Set(delta)].sort((a,b) => (a-b))
+    const activeExpertsData = useMemo(
+        () => experts.filter((_, i) => !isChecked.includes(i)),
+        [experts, isChecked]
+    );
 
-        return delta.map(value => sorted.indexOf(value) + 1);
+    const competFind = (delta, expertsToMap) => {
+        const sorted =  [...new Set(delta)].sort((a,b) => (a-b))
+
+        return delta.map((value, index) => {
+            
+            const exp = expertsToMap[index]; 
+
+            return{
+                id: exp?.id,
+                value: sorted.indexOf(value) + 1
+            }
+        })
     }
-    let components = competFind(deltaAvg);
+    let range = [];
+    if (activeExpertsData.length && deltaAvg.length) { // Використовуйте відфільтрованих експертів
+        range = competFind(deltaAvg, activeExpertsData);
+    }
 
     const handleToggle = (index) => {
         setIsChecked((prev) => 
@@ -139,7 +200,7 @@ export default function App() {
                     <div className='flex flex-row gap-1 mb-[10px]'> 
                         
                         {matrix[0].map((del, index) => (
-                            <div key={del} className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
+                            <div key={index + 1} className='text-center p-1 w-20 bg-pink-100 rounded-md border border-pink-400'>
                                 delta{index + 1} 
                             </div>
                         ))}
@@ -171,25 +232,23 @@ export default function App() {
                 <div className='w-fit flex gap-1 flex-col ml-1'>
                     <div className='mb-[10px] text-center p-1 w-9 bg-pink-300 rounded-md border border-pink-400'>№</div>
 
-                    {components.map((comp, i) => (
+                    {range.map((comp) => (
                         <div className='h-[33px] flex items-center justify-center w-9 border border-pink-400 text-center bg-pink-300 rounded-md'
-                            key={`comp-${i}`}>
-                                {comp}
+                            key={`comp-${comp.id}`}>
+                                {comp.value}
                         </div>
                     ))}
                 </div>
-            </div>
-            
-            <div className='flex'>
-                <div onClick={addExpert} className='w-[30px] h-[30px] flex justify-center align-middle rounded-full bg-indigo-400 mt-[10px] '>+</div>
+
+                <UpdateCompetence experts={experts} range={range} />
             </div>
             </div>
 
         <p className='self-start font-extralight'>Кожен рядок - один експерт, кожен стовбчик - одне пошкодження</p>
 
         <KendallAlgorithm M={activeMatrix} />
-        <AddExpert />
-        <ExpertsList />
+        <AddExpert fetchExperts={fetchExperts} />
+        <ExpertsList experts={experts} fetchExperts={fetchExperts} />
 
     </div>
   )
